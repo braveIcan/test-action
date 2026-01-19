@@ -1,0 +1,15 @@
+name: test 
+on: push
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+    - run: pwd
+    - run: ls
+  node-test:
+    name: windows-job2
+    runs-on: windows-latest
+    steps:
+    - name: check node version
+      run: node --version
