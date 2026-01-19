@@ -6,41 +6,34 @@
  * The repository information is injected during the CI/CD build process
  * to enable fetching data from the data branch
  */
-
 const DATA_CONFIG = {
     /**
-     * GitHub repository owner (username)
-     * This will be replaced during GitHub Actions workflow execution
+     * 自动识别仓库所有者和名称
      */
-    repoOwner: 'dw-dengwei',
+    repoOwner: (() => {
+        // 如果是在 github.io 域名下，hostname 的第一部分就是用户名
+        const hostParts = window.location.hostname.split('.');
+        if (hostParts[1] === 'github' && hostParts[2] === 'io') return hostParts[0];
+        return 'braveIcan'; // 备选值：你的用户名
+    })(),
 
-    /**
-     * GitHub repository name
-     * This will be replaced during GitHub Actions workflow execution
-     */
-    repoName: 'daily-arXiv-ai-enhanced',
+    repoName: (() => {
+        // 从路径中提取仓库名 (例如 /test-action/ 中的 test-action)
+        const pathParts = window.location.pathname.split('/').filter(Boolean);
+        return pathParts[0] || 'test-action'; // 备选值：你的仓库名
+    })(),
 
-    /**
-     * Data branch name
-     * Default: 'data'
-     */
     dataBranch: 'data',
 
-    /**
-     * Get the base URL for raw GitHub content from data branch
-     * @returns {string} Base URL for raw GitHub content
-     */
     getDataBaseUrl: function() {
+        // 如果是本地开发环境 (localhost)，可以重定向到你指定的远程地址进行调试
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return `https://raw.githubusercontent.com/braveIcan/test-action/${this.dataBranch}`;
+        }
         return `https://raw.githubusercontent.com/${this.repoOwner}/${this.repoName}/${this.dataBranch}`;
     },
 
-    /**
-     * Get the full URL for a data file
-     * @param {string} filePath - Relative path to the data file (e.g., 'data/2025-01-01.jsonl')
-     * @returns {string} Full URL to the data file
-     */
     getDataUrl: function(filePath) {
         return `${this.getDataBaseUrl()}/${filePath}`;
     }
 };
-
